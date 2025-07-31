@@ -30,7 +30,6 @@ export default function HomeScreen() {
       <Stack.Screen options={{ title: "Salones", headerShown: true }} />
       <View className="w-1/2 h-[2rem] bg-yellow-500 border-2 border-green-600 m-4"></View>
       <ThemedView style={styles.container}>
-        {/* <CustomAppBar/> */}
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           {salons.map((salon) => (
             <SalonCard key={salon.id} salon={salon} />

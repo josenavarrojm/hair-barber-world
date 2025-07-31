@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "hair-barber-world",
+    "name": "Barber Booking",
     "slug": "hair-barber-world",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "hairbarberworld",
+    "scheme": "barberbooking",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

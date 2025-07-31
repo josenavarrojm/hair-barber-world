@@ -15,6 +15,11 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    GrenzeGotisch: require("../assets/fonts/GrenzeGotisch.ttf"),
+    AtomicAge: require("../assets/fonts/AtomicAge-Regular.ttf"),
+    Oswald: require("../assets/fonts/Oswald.ttf"),
+    Oswaldl: require("../assets/fonts/Oswald-Light.ttf"),
+    ProtestGuerrilla: require("../assets/fonts/ProtestGuerrilla.ttf"),
   });
 
   if (!loaded) {
@@ -25,7 +30,7 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />
