@@ -1,0 +1,38 @@
+```
+└── 📁hair-barber-world
+    └── 📁assets
+        └── 📁fonts
+            ├── SpaceMono-Regular.ttf
+        └── 📁images
+    └── 📁components
+        └── 📁ui
+            ├── IconSymbol.ios.tsx
+            ├── IconSymbol.tsx
+            ├── TabBarBackground.ios.tsx
+            ├── TabBarBackground.tsx
+        ├── Collapsible.tsx
+        ├── CustomAppBar.tsx
+        ├── HapticTab.tsx
+        ├── SalonCard.tsx
+        ├── ThemedText.tsx
+        ├── ThemedView.tsx
+    └── 📁constants
+        ├── Colors.ts
+    └── 📁data
+        ├── salons.json
+    └── 📁hooks
+        ├── useColorScheme.ts
+        ├── useColorScheme.web.ts
+        ├── useThemeColor.ts
+    └── 📁scripts
+        ├── reset-project.js
+    ├── .gitignore
+    ├── app.json
+    ├── eslint.config.js
+    ├── expo-env.d.ts
+    ├── package-lock.json
+    ├── package.json
+    ├── README.md
+    ├── tailwind.config.js
+    └── tsconfig.json
+```

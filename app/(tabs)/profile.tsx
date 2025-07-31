@@ -1,17 +1,16 @@
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Stack } from 'expo-router';
-import React from 'react';
 import { StyleSheet } from 'react-native';
 
 
-export default function ReservasScreen() {
-  return   <>
-  <Stack.Screen options={{ title: 'Inicio' }} />
+export default function ProfileScreen() {
+  return (<>
+  <Stack.Screen options={{ title: 'Reservas' }} />
   <ThemedView style={styles.container}>
-    <ThemedText type="title">Reservas</ThemedText>
+    <ThemedText type="title">Perfil</ThemedText>
   </ThemedView>;
-  </>
+  </>);
 }
 
 const styles = StyleSheet.create({
