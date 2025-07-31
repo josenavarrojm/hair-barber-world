@@ -13,6 +13,8 @@ import {
 } from "react-native";
 
 const windowWidth = Dimensions.get("window").width;
+const windowheight = Dimensions.get("window").height;
+const isDesktop = windowWidth > 720;
 
 export default function Welcome() {
   const [imgHeight, setImgHeight] = useState(0);
@@ -59,7 +61,10 @@ export default function Welcome() {
         <View>
           <Image
             source={logo}
-            style={{ width: windowWidth, height: imgHeight }}
+            style={{
+              width: isDesktop ? windowWidth * 0.7 : windowWidth,
+              height: imgHeight,
+            }}
             resizeMode="contain"
           />
         </View>
@@ -87,13 +92,20 @@ export default function Welcome() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f0f",
-    paddingBottom: 24,
-  },
+  container: isDesktop
+    ? {
+        flex: 1,
+        alignItems: "flex-end",
+        justifyContent: "center",
+        backgroundColor: "#f00",
+      }
+    : {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#f0f",
+        paddingBottom: 24,
+      },
   titleBox: {
     position: "absolute",
     top: 80,
@@ -101,12 +113,20 @@ const styles = StyleSheet.create({
     width: "88%",
     zIndex: 9999,
   },
-  title: {
-    color: "#09507A",
-    fontFamily: "ProtestGuerrilla",
-    textTransform: "lowercase",
-    fontSize: 48,
-  },
+
+  title: isDesktop
+    ? {
+        color: "#09507A",
+        fontFamily: "ProtestGuerrilla",
+        textTransform: "lowercase",
+        fontSize: 56,
+      }
+    : {
+        color: "#09507A",
+        fontFamily: "ProtestGuerrilla",
+        textTransform: "lowercase",
+        fontSize: 48,
+      },
   titleDown: {
     fontFamily: "Oswald",
     textTransform: "uppercase",
@@ -115,30 +135,48 @@ const styles = StyleSheet.create({
     fontSize: 32,
   },
   slogan: {
-    marginTop: 16,
     fontFamily: "Oswaldl",
-    // fontFamily: "Oswald",
     textTransform: "uppercase",
     textAlign: "center",
     color: "#F2EADF",
     fontSize: 16,
+    marginTop: 8,
   },
-  card: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "space-evenly",
-    height: "40%",
-    width: "100%",
-    backgroundColor: "#D95448",
-    shadowColor: "#075473",
-    boxShadow: "-1px -1px 2px 0px #A63116",
-    borderTopRightRadius: 24,
-    borderTopLeftRadius: 24,
-    padding: 16,
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-  },
+  card: isDesktop
+    ? {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "space-evenly",
+        height: "48%",
+        width: "40%",
+        backgroundColor: "#D95448",
+        shadowColor: "#075473",
+        boxShadow: "-1px -1px 2px 0px #A63116",
+        borderTopRightRadius: 24,
+        borderBottomRightRadius: 24,
+        borderTopLeftRadius: 24,
+        borderBottomLeftRadius: 24,
+        padding: 16,
+        position: "absolute",
+        bottom: 20,
+        left: 20,
+      }
+    : {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "space-evenly",
+        height: "40%",
+        width: "100%",
+        backgroundColor: "#D95448",
+        shadowColor: "#075473",
+        boxShadow: "-1px -1px 2px 0px #A63116",
+        borderTopRightRadius: 24,
+        borderTopLeftRadius: 24,
+        padding: 16,
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+      },
   logo: {
     backgroundColor: "#0a0",
     padding: 0,
