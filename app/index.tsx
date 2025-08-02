@@ -3,6 +3,7 @@ import logo from "@/assets/images/barberlogo.png";
 
 // Componente personalizado para mostrar texto con estilo según el tema (oscuro/claro, etc.)
 import { ThemedText } from "@/components/ThemedText";
+import { screenDimensions } from "@/constants/screenDimensions";
 
 // Hook de navegación proporcionado por Expo Router para cambiar de pantalla
 import { Stack, useRouter } from "expo-router";
@@ -14,19 +15,15 @@ import { useEffect, useState } from "react";
 
 // Importaciones de elementos esenciales de React Native
 import {
-  Dimensions, // Para obtener las dimensiones de la ventana
   Image, // Componente para renderizar imágenes
   Platform, // Para saber si estamos en web, Android o iOS
   Pressable, // Botón táctil personalizable
   StyleSheet, // Crear estilos para los componentes
-  View, // Contenedor visual, similar a un <div>
+  View,
 } from "react-native";
 
-// Se obtiene el ancho actual de la pantalla
-const windowWidth = Dimensions.get("window").width;
-
-// Se determina si el dispositivo es una pantalla grande (por ejemplo, escritorio)
-const isDesktop = windowWidth > 720;
+// Se obtiene las dimensiones actuales de la pantalla
+const { windowWidth, isDesktop } = screenDimensions;
 
 // Componente principal de bienvenida que se muestra al iniciar la app
 export default function Welcome() {
