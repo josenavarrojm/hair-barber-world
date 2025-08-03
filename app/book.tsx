@@ -2,59 +2,83 @@ import SalonCard from "@/components/SalonCard";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { screenDimensions } from "@/constants/screenDimensions";
 import salons from "@/data/salons.json";
-import { router, Stack, useNavigation } from "expo-router";
-import { useLayoutEffect, useState } from "react";
+import { router, Stack } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   FlatList,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
 
 const { isDesktop } = screenDimensions;
+const PAGE_SIZE = 10;
 
 export default function BarberBook() {
-  const navigation = useNavigation();
+  const [searchText, setSearchText] = useState("");
+  const [filteredSalons, setFilteredSalons] = useState(salons);
+  const [visibleSalons, setVisibleSalons] = useState(
+    salons.slice(0, PAGE_SIZE)
+  );
 
-  const [visibleSalons, setVisibleSalons] = useState(salons.slice(0, 10)); // Primeros 10
-  const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
+  useEffect(() => {
+    if (searchText.trim() === "") {
+      setFilteredSalons(salons);
+      setVisibleSalons(salons.slice(0, PAGE_SIZE));
+      return;
+    }
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity onPress={() => alert("Notificaciones")}>
-          <IconSymbol
-            name="notifications.fill"
-            size={24}
-            color="red"
-            style={{ marginRight: 16 }}
-          />
-        </TouchableOpacity>
-      ),
+    const lowercased = searchText.toLowerCase();
+
+    const filtered = salons.filter((salon) => {
+      return (
+        salon.nombre.toLowerCase().includes(lowercased) ||
+        salon.etiquetas.some((etiqueta) =>
+          etiqueta.toLowerCase().includes(lowercased)
+        ) ||
+        salon.servicios.some((servicio) =>
+          servicio.toLowerCase().includes(lowercased)
+        )
+      );
     });
-  }, [navigation]);
+
+    setFilteredSalons(filtered);
+    setVisibleSalons(filtered.slice(0, PAGE_SIZE));
+  }, [searchText]);
 
   const loadMoreSalons = () => {
-    const nextPage = page + 1;
-    const nextItems = salons.slice(0, nextPage * itemsPerPage);
-    setVisibleSalons(nextItems);
-    setPage(nextPage);
+    const currentLength = visibleSalons.length;
+    const next = filteredSalons.slice(currentLength, currentLength + PAGE_SIZE);
+    if (next.length > 0) {
+      setVisibleSalons([...visibleSalons, ...next]);
+    }
   };
 
   return (
     <>
       <Stack.Screen
-        name="Salones"
         options={{
+          title: "Salones",
           headerShown: true,
-          header: () => <CustomHeader />,
+          header: () => (
+            <CustomHeader
+              searchText={searchText}
+              setSearchText={setSearchText}
+              resultCount={filteredSalons.length}
+            />
+          ),
         }}
       />
-      <View style={{ flex: 1 }}>
+      <View
+        style={[
+          {
+            backgroundColor: "#F5FBEF",
+          },
+          isDesktop && styles.scrollContainer,
+        ]}
+      >
         <FlatList
           data={visibleSalons}
           keyExtractor={(item) => item.id}
@@ -62,19 +86,20 @@ export default function BarberBook() {
           onEndReached={loadMoreSalons}
           onEndReachedThreshold={0.2}
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={isDesktop && styles.scrollContainer}
+          showsHorizontalScrollIndicator={false}
         />
       </View>
-      {/* <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {salons.map((salon) => (
-          <SalonCard key={salon.id} salon={salon} />
-        ))}
-      </ScrollView> */}
     </>
   );
 }
 
-function CustomHeader() {
+interface Props {
+  searchText: string;
+  setSearchText: (text: string) => void;
+  resultCount: number;
+}
+
+function CustomHeader({ searchText, setSearchText, resultCount }: Props) {
   return (
     <View style={styles.appBar}>
       <View
@@ -85,34 +110,17 @@ function CustomHeader() {
             justifyContent: "space-between",
             alignItems: "center",
             marginBottom: 8,
-            // backgroundColor: "#aa0",
           },
           isDesktop && { width: 650 },
         ]}
       >
         <Pressable onPress={() => router.push("/profile")}>
-          <IconSymbol
-            name="person.circle.fill"
-            size={32}
-            color="#FEFFAA"
-            // style={styles.searchIcon}
-          />
+          <IconSymbol name="person.circle.fill" size={32} color="#FEFFAA" />
         </Pressable>
         <Text style={styles.appBarTitle}>Salones</Text>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Text style={styles.credit}>37</Text>
-          <IconSymbol
-            name="currency-lira.fill"
-            size={24}
-            color="#F2EADF"
-            // style={styles.searchIcon}
-          />
+          <IconSymbol name="currency-lira.fill" size={24} color="#F2EADF" />
         </View>
       </View>
 
@@ -121,6 +129,8 @@ function CustomHeader() {
           placeholder="Buscar salón..."
           placeholderTextColor="#888"
           style={styles.inputText}
+          value={searchText}
+          onChangeText={setSearchText}
         />
         <IconSymbol
           name="search.fill"
@@ -128,6 +138,24 @@ function CustomHeader() {
           color="#000"
           style={styles.searchIcon}
         />
+      </View>
+      <View>
+        <Text
+          style={{
+            color: "#F5FBEFAB",
+            fontFamily: "Oswald",
+            fontSize: 14,
+            width: isDesktop ? 650 : "auto",
+            // alignSelf: isDesktop ? "flex-end" : "flex-start",
+            textAlign: "right",
+            // paddingLeft: isDesktop ? 350 : 8,
+            // backgroundColor: "#FFA",
+          }}
+        >
+          {resultCount === 1
+            ? "1 resultado encontrado"
+            : `${resultCount} resultados encontrados`}
+        </Text>
       </View>
     </View>
   );
@@ -209,20 +237,18 @@ const styles = StyleSheet.create({
   },
   container: {
     width: "100%",
-    // flex: 1,
-    // alignItems: "center",
-    // justifyContent: "center",
-    // padding: 20,
   },
   link: {
     marginTop: 15,
     paddingVertical: 15,
   },
   scrollContainer: {
+    flex: 1,
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 16,
+    // width: windowWidth * 0.55,
+    // paddingHorizontal: windowWidth * 0.1,
     paddingBottom: 20,
     paddingTop: 16,
   },

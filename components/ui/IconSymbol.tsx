@@ -22,6 +22,10 @@ const MAPPING = {
   "currency-lira.fill": "currency-lira",
   "location-on.fill": "location-on",
   "edit-calendar.fill": "edit-calendar",
+  "star-full.fill": "star",
+  "star-half.fill": "star-half",
+  "star-outline.fill": "star-outline",
+  "tag.fill": "tag",
 } as const;
 
 type IconSymbolName = keyof typeof MAPPING;

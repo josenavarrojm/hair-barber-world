@@ -3,6 +3,8 @@ import { screenDimensions } from "@/constants/screenDimensions";
 import { router } from "expo-router";
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { RatingStars } from "./ratingStars";
+import { ReservarBtn } from "./reservarBtn";
 import { IconSymbol } from "./ui/IconSymbol";
 
 const { windowWidth, isDesktop } = screenDimensions;
@@ -15,7 +17,7 @@ type Salon = {
   servicios: string[];
   precio_creditos: number;
   calificacion: number;
-  reseñas: number;
+  reviews: number;
   horario: string;
   disponibilidad: boolean;
   idiomas: string[];
@@ -33,6 +35,18 @@ export default function SalonCard({ salon }: Props) {
     <View style={styles.card}>
       <View style={styles.topRow}>
         <Text style={styles.nombre}>{salon.nombre}</Text>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "flex-start",
+          }}
+        >
+          <Text style={{ fontFamily: "Oswaldl", fontSize: 16 }}>
+            {salon.calificacion}
+          </Text>
+          <RatingStars rating={salon.calificacion} color="#075473" />
+        </View>
       </View>
       <View style={styles.midRow}>
         <Pressable onPress={() => router.push(`/${salon.id}`)}>
@@ -86,13 +100,10 @@ export default function SalonCard({ salon }: Props) {
           <IconSymbol name="location-on.fill" size={24} color="#011640" />
           {salon.ubicacion}
         </Text>
-        <Pressable
-          onPress={() => router.push(`/${salon.id}`)}
-          style={styles.agendarBtn}
-        >
-          <Text style={styles.agendarText}>Agendar</Text>
-          <IconSymbol color="#F2EADF" name="edit-calendar.fill" size={24} />
-        </Pressable>
+        <ReservarBtn
+          fontSized={20}
+          widthBtn={isDesktop ? windowWidth * 0.16 : "auto"}
+        />
       </View>
     </View>
   );
@@ -111,6 +122,7 @@ const styles = StyleSheet.create({
     textAlign: "left",
     paddingLeft: 16,
     borderRadius: 24,
+    marginBottom: isDesktop ? null : -16,
   },
   midRow: {
     flex: 1,
@@ -165,6 +177,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginBottom: 4,
     fontFamily: "Oswaldl",
+    letterSpacing: 1,
   },
   servicios: {
     flexDirection: "row",
