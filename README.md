@@ -1,50 +1,65 @@
-# Welcome to your Expo app 👋
+# Hair Barber World
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Hair Barber World es una aplicación móvil desarrollada con React Native y Expo que permite a los usuarios descubrir salones de belleza y barberías, y reservar servicios utilizando un sistema de créditos. Este proyecto fue desarrollado como parte de una prueba técnica.
 
-## Get started
+## 🚀 Instrucciones para ejecutar el proyecto
 
-1. Install dependencies
+1. Clona el repositorio:
+
+   ```bash
+   git clone https://github.com/josenavarrojm/hair-barber-world.git
+   cd hair-barber-world
+   ```
+
+2. Instala las dependencias:
 
    ```bash
    npm install
    ```
 
-2. Start the app
+3. Inicia el servidor de desarrollo:
 
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+4. Escanea el código QR con la app Expo Go en tu dispositivo móvil o usa un emulador.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## ✅ Funcionalidades completadas
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- Visualización de salones disponibles.
+- Búsqueda por nombre de salón.
+- Filtrado por categoría de servicios (corte, barbería, cejas, etc.).
+- Ordenamiento por precio y calificación.
+- Visualización de detalles de cada salón.
+- Sistema de créditos:
+  - Los usuarios pueden reservar si tienen suficientes créditos.
+  - Muestra notificación si no tienen créditos suficientes.
+- Reservas activadas solo si el usuario tiene suficientes créditos.
+- Sistema de notificaciones tipo Toast.
+- Responsive según tamaño de pantalla.
+- Gestión global del estado con contextos (`appContext`, `ToastContext`).
+- Fuentes personalizadas.
 
-## Get a fresh project
+## 🛠 Tecnologías utilizadas
 
-When you're ready, run:
+- React Native con Expo
+- TypeScript
+- Tailwind CSS (con NativeWind)
+- Context API para manejo de estado global
+- AsyncStorage para persistencia local
+- EAS Build para despliegue
+- Hooks personalizados (`useScreenDimension`, `useThemeColor`, etc.)
 
-```bash
-npm run reset-project
-```
+## 💡 Decisiones de diseño y consideraciones técnicas
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+- **Sistema de créditos:** En vez de simular autenticación o pagos reales, se utilizó una variable `credits` en el contexto global para controlar si un usuario puede reservar o no.
+- **Contextos compartidos:** Se usaron para centralizar información de la app y facilitar la gestión de notificaciones y créditos.
+- **Diseño UI:** Inspirado en aplicaciones modernas de reservas, con componentes reutilizables (`SalonCard`, `BookingFormCard`, `CustomDropDownMenuCats`, etc.).
+- **Paginación y filtrado:** Simulados en el cliente para este reto técnico, sin backend real.
+- **Fuentes personalizadas:** Integradas para mejorar la estética del branding.
+- **Toast de éxito/error:** Notifica cambios y errores de forma clara al usuario.
 
-## Learn more
+---
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Desarrollado por [@josenavarrojm](https://github.com/josenavarrojm)

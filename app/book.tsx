@@ -1,53 +1,95 @@
+// Importación de componentes personalizados para filtrado, ordenamiento y visualización de salones
+import CustomDropdownCat from "@/components/CustomDropDownMenuCats";
+import CustomSortDropdown from "@/components/CustomDropDownMenuSort";
 import SalonCard from "@/components/SalonCard";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { screenDimensions } from "@/constants/screenDimensions";
-import salons from "@/data/salons.json";
-import { router, Stack } from "expo-router";
-import { useEffect, useState } from "react";
-import {
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
 
+// Constante que determina si la pantalla es de escritorio o no
+import { screenDimensions } from "@/constants/screenDimensions";
+
+// Datos locales simulando una API con información de salones
+import salons from "@/data/salons.json";
+
+// Navegación mediante stack de Expo Router
+import { Stack } from "expo-router";
+
+// Hooks de React para manejar estados y efectos
+import { useEffect, useMemo, useState } from "react";
+
+// Componentes básicos de React Native
+import { FlatList, StyleSheet, Text, TextInput, View } from "react-native";
+
+// Contexto global para acceder a datos compartidos como créditos
+import { useAppContext } from "./context/appContext";
+
+// Desestructuración para saber si se está en desktop
 const { isDesktop } = screenDimensions;
+
+// Número de salones mostrados por página
 const PAGE_SIZE = 10;
 
 export default function BarberBook() {
+  // Estado para texto de búsqueda
   const [searchText, setSearchText] = useState("");
+
+  // Estado para los salones filtrados según búsqueda/servicio
   const [filteredSalons, setFilteredSalons] = useState(salons);
+
+  // Estado para el servicio actualmente seleccionado
+  const [selectedService, setSelectedService] = useState("Todos");
+
+  // Estado para la opción de ordenamiento actual
+  const [sortOption, setSortOption] = useState("relevancia");
+
+  // Estado para los salones actualmente visibles (paginación)
   const [visibleSalons, setVisibleSalons] = useState(
     salons.slice(0, PAGE_SIZE)
   );
 
+  // Extrae todos los servicios únicos desde los datos
+  const allServices = useMemo(() => {
+    const services = salons.flatMap((s) => s.servicios);
+    return ["Todos", ...Array.from(new Set(services))];
+  }, []);
+
+  // Efecto que actualiza los resultados cuando cambian búsqueda, filtros u ordenamiento
   useEffect(() => {
-    if (searchText.trim() === "") {
-      setFilteredSalons(salons);
-      setVisibleSalons(salons.slice(0, PAGE_SIZE));
-      return;
+    let result = salons;
+
+    // Filtro por texto (nombre, etiquetas o servicios)
+    if (searchText.trim() !== "") {
+      const lower = searchText.toLowerCase();
+      result = result.filter(
+        (salon) =>
+          salon.nombre.toLowerCase().includes(lower) ||
+          salon.etiquetas.some((e) => e.toLowerCase().includes(lower)) ||
+          salon.servicios.some((s) => s.toLowerCase().includes(lower))
+      );
     }
 
-    const lowercased = searchText.toLowerCase();
-
-    const filtered = salons.filter((salon) => {
-      return (
-        salon.nombre.toLowerCase().includes(lowercased) ||
-        salon.etiquetas.some((etiqueta) =>
-          etiqueta.toLowerCase().includes(lowercased)
-        ) ||
-        salon.servicios.some((servicio) =>
-          servicio.toLowerCase().includes(lowercased)
-        )
+    // Filtro por servicio específico
+    if (selectedService !== "Todos") {
+      result = result.filter((salon) =>
+        salon.servicios.includes(selectedService)
       );
+    }
+
+    // Ordenamiento según opción seleccionada
+    result = [...result].sort((a, b) => {
+      if (sortOption === "relevancia") return b.calificacion - a.calificacion;
+      if (sortOption === "precio-asc")
+        return a.precio_creditos - b.precio_creditos;
+      if (sortOption === "precio-desc")
+        return b.precio_creditos - a.precio_creditos;
+      return 0;
     });
 
-    setFilteredSalons(filtered);
-    setVisibleSalons(filtered.slice(0, PAGE_SIZE));
-  }, [searchText]);
+    // Actualización de resultados filtrados y visibles
+    setFilteredSalons(result);
+    setVisibleSalons(result.slice(0, PAGE_SIZE));
+  }, [searchText, selectedService, sortOption]);
 
+  // Cargar más resultados cuando se llega al final del scroll
   const loadMoreSalons = () => {
     const currentLength = visibleSalons.length;
     const next = filteredSalons.slice(currentLength, currentLength + PAGE_SIZE);
@@ -67,6 +109,11 @@ export default function BarberBook() {
               searchText={searchText}
               setSearchText={setSearchText}
               resultCount={filteredSalons.length}
+              selectedService={selectedService}
+              setSelectedService={setSelectedService}
+              sortOption={sortOption}
+              setSortOption={setSortOption}
+              allServices={allServices}
             />
           ),
         }}
@@ -79,6 +126,7 @@ export default function BarberBook() {
           isDesktop && styles.scrollContainer,
         ]}
       >
+        {/* Lista paginada de salones con scroll infinito */}
         <FlatList
           data={visibleSalons}
           keyExtractor={(item) => item.id}
@@ -93,13 +141,31 @@ export default function BarberBook() {
   );
 }
 
+// Props para el componente de cabecera personalizada
 interface Props {
   searchText: string;
   setSearchText: (text: string) => void;
   resultCount: number;
+  selectedService: string;
+  setSelectedService: (value: string) => void;
+  sortOption: string;
+  setSortOption: (value: string) => void;
+  allServices: string[];
 }
 
-function CustomHeader({ searchText, setSearchText, resultCount }: Props) {
+// Cabecera personalizada con buscador, créditos y filtros
+function CustomHeader({
+  searchText,
+  setSearchText,
+  resultCount,
+  selectedService,
+  setSelectedService,
+  sortOption,
+  setSortOption,
+  allServices,
+}: Props) {
+  // Obtener créditos del contexto global
+  const { credits } = useAppContext();
   return (
     <View style={styles.appBar}>
       <View
@@ -114,16 +180,20 @@ function CustomHeader({ searchText, setSearchText, resultCount }: Props) {
           isDesktop && { width: 650 },
         ]}
       >
-        <Pressable onPress={() => router.push("/profile")}>
-          <IconSymbol name="person.circle.fill" size={32} color="#FEFFAA" />
-        </Pressable>
+        {/* Ícono de usuario */}
+        <IconSymbol name="person.circle.fill" size={32} color="#FEFFAA" />
+
+        {/* Título de la página */}
         <Text style={styles.appBarTitle}>Salones</Text>
+
+        {/* Créditos disponibles */}
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Text style={styles.credit}>37</Text>
+          <Text style={styles.credit}>{credits}</Text>
           <IconSymbol name="currency-lira.fill" size={24} color="#F2EADF" />
         </View>
       </View>
 
+      {/* Input de búsqueda */}
       <View style={styles.searchContainer}>
         <TextInput
           placeholder="Buscar salón..."
@@ -134,11 +204,13 @@ function CustomHeader({ searchText, setSearchText, resultCount }: Props) {
         />
         <IconSymbol
           name="search.fill"
-          size={24}
+          size={20}
           color="#000"
           style={styles.searchIcon}
         />
       </View>
+
+      {/* Texto con cantidad de resultados */}
       <View>
         <Text
           style={{
@@ -146,16 +218,41 @@ function CustomHeader({ searchText, setSearchText, resultCount }: Props) {
             fontFamily: "Oswald",
             fontSize: 14,
             width: isDesktop ? 650 : "auto",
-            // alignSelf: isDesktop ? "flex-end" : "flex-start",
             textAlign: "right",
-            // paddingLeft: isDesktop ? 350 : 8,
-            // backgroundColor: "#FFA",
           }}
         >
           {resultCount === 1
             ? "1 resultado encontrado"
             : `${resultCount} resultados encontrados`}
         </Text>
+      </View>
+
+      {/* Dropdowns para filtros y ordenamiento */}
+      <View
+        style={{
+          flexDirection: "row",
+          width: isDesktop ? 650 : "auto",
+          justifyContent: "space-between",
+          gap: 32,
+        }}
+      >
+        <View style={{ flex: 1 }}>
+          <CustomDropdownCat
+            value={selectedService}
+            setValue={setSelectedService}
+            options={allServices.map((service) => ({
+              label: service,
+              value: service,
+            }))}
+            placeholder="Filtrar por servicio"
+          />
+        </View>
+        <View style={{ flex: 1 }}>
+          <CustomSortDropdown
+            setSortOption={setSortOption}
+            sortOption={sortOption}
+          />
+        </View>
       </View>
     </View>
   );
@@ -164,7 +261,7 @@ function CustomHeader({ searchText, setSearchText, resultCount }: Props) {
 const styles = StyleSheet.create({
   appBar: isDesktop
     ? {
-        height: 128, // usa un valor en puntos, no porcentaje
+        height: 198, // usa un valor en puntos, no porcentaje
         flexDirection: "column",
         backgroundColor: "#D95448",
         alignItems: "center",
@@ -174,7 +271,7 @@ const styles = StyleSheet.create({
         zIndex: 10, // para que quede encima
       }
     : {
-        height: 160, // usa un valor en puntos, no porcentaje
+        height: 224, // usa un valor en puntos, no porcentaje
         backgroundColor: "#D95448",
         alignItems: "flex-start",
         justifyContent: "flex-end",
@@ -191,7 +288,7 @@ const styles = StyleSheet.create({
   },
   searchContainer: isDesktop
     ? {
-        height: 48,
+        height: 32,
         width: 650,
         flexDirection: "row",
         alignItems: "center",
@@ -208,14 +305,23 @@ const styles = StyleSheet.create({
         backgroundColor: "#F2EADF",
         borderRadius: 16,
       },
-  inputText: {
-    height: 48,
-    width: "90%",
-    borderRadius: 16,
-    paddingLeft: 16,
-    fontSize: 24,
-    fontFamily: "Oswaldl",
-  },
+  inputText: isDesktop
+    ? {
+        height: 32,
+        width: "90%",
+        borderRadius: 16,
+        paddingLeft: 16,
+        fontSize: 16,
+        fontFamily: "Oswaldl",
+      }
+    : {
+        height: 48,
+        width: "90%",
+        borderRadius: 16,
+        paddingLeft: 16,
+        fontSize: 20,
+        fontFamily: "Oswaldl",
+      },
   searchIcon: {
     marginRight: 8,
   },

@@ -26,6 +26,7 @@ const MAPPING = {
   "star-half.fill": "star-half",
   "star-outline.fill": "star-outline",
   "tag.fill": "tag",
+  "close.fill": "close",
 } as const;
 
 type IconSymbolName = keyof typeof MAPPING;

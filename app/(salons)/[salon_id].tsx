@@ -1,31 +1,35 @@
-// import { ThemedText } from "@/components/ThemedText";
-// import { ThemedView } from "@/components/ThemedView";
-// import React from "react";
 import barber from "@/assets/images/salon_icon.png";
+import BookingFormCard from "@/components/BookingFormCard";
 import { RatingStars } from "@/components/ratingStars";
 import { ReservarBtn } from "@/components/reservarBtn";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { screenDimensions } from "@/constants/screenDimensions";
 import salons from "@/data/salons.json";
 import { BlurView } from "expo-blur";
-import { router, Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 
 import {
   Image,
+  Modal,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { useAppContext } from "../context/appContext";
+import { useToast } from "../context/ToastContext";
 
 const { windowWidth, windowHeight, isDesktop } = screenDimensions;
 
 export default function ReservasScreen() {
   const { salon_id } = useLocalSearchParams();
   const salonData = salons.find((s) => s.id === salon_id);
+
+  const [showBooking, setShowBooking] = useState(false);
+  const { credits } = useAppContext();
+  const { showToast } = useToast();
 
   // Estado para almacenar dinámicamente la altura que debe tener la imagen del logo
   const [imgHeight, setImgHeight] = useState(0);
@@ -90,18 +94,13 @@ export default function ReservasScreen() {
             zIndex: 9999,
           }}
         >
-          <Pressable
-            onPress={() => router.push("/profile")}
-            style={{ marginRight: 8 }}
-          >
-            <IconSymbol
-              name="person.circle.fill"
-              size={32}
-              color="#011640"
-              // style={styles.searchIcon}
-            />
-          </Pressable>
-          <Text style={styles.credit}>37</Text>
+          <IconSymbol
+            name="person.circle.fill"
+            size={32}
+            color="#011640"
+            // style={styles.searchIcon}
+          />
+          <Text style={styles.credit}>{credits}</Text>
           <IconSymbol
             name="currency-lira.fill"
             size={24}
@@ -379,16 +378,59 @@ export default function ReservasScreen() {
             </View>
             {isDesktop && (
               <ReservarBtn
-                widthBtn={isDesktop ? windowWidth * 0.25 : windowWidth * 0.8}
+                fontSized={20}
+                widthBtn={isDesktop ? windowWidth * 0.16 : "auto"}
+                onPress={() => {
+                  if (credits < salonData.precio_creditos) {
+                    showToast({
+                      text: "¡Créditos insuficientes!",
+                      color: "red",
+                      icon: "alert-circle",
+                    });
+                  } else {
+                    setShowBooking(true);
+                  }
+                }}
               />
             )}
           </ScrollView>
         </View>
         {!isDesktop && (
           <View style={{ position: "absolute", bottom: 20 }}>
-            <ReservarBtn widthBtn={windowWidth * 0.8} />
+            <ReservarBtn
+              widthBtn={windowWidth * 0.8}
+              onPress={() => {
+                if (credits < salonData.precio_creditos) {
+                  showToast({
+                    text: "¡Créditos insuficientes!",
+                    color: "red",
+                    icon: "alert-circle",
+                  });
+                } else {
+                  setShowBooking(true);
+                }
+              }}
+            />
           </View>
         )}
+        <Modal visible={showBooking} animationType="slide" transparent={true}>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              backgroundColor: "rgba(0,0,0,0.4)",
+            }}
+          >
+            <BookingFormCard
+              salon={salonData}
+              onSubmit={(data) => {
+                console.log("Reserva:", data);
+                setShowBooking(false);
+              }}
+              onPress={() => setShowBooking(false)}
+            />
+          </View>
+        </Modal>
       </View>
     </>
   );
@@ -480,18 +522,14 @@ const styles = StyleSheet.create({
     alignSelf: isDesktop ? "flex-start" : "center",
   },
   duracion: {
-    // width: windowWidth * 0.92,
+    width: isDesktop ? null : windowWidth * 0.92,
     fontSize: 20,
     fontFamily: "Oswald",
     letterSpacing: 2,
     alignSelf: isDesktop ? "auto" : "flex-start",
-    // marginBottom: 8,
     borderTopColor: "#aaa",
-    borderBottomColor: "#aaa",
     borderTopWidth: 1,
-    borderBottomWidth: 1,
     paddingVertical: 16,
-    // marginVertical: 16,
   },
 });
 

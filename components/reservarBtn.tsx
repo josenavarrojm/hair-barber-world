@@ -5,15 +5,17 @@ import { IconSymbol } from "./ui/IconSymbol";
 interface reservarBtnProps {
   fontSized?: number;
   widthBtn: DimensionValue | undefined;
+  onPress: () => void;
 }
 
 export const ReservarBtn: React.FC<reservarBtnProps> = ({
   fontSized = 32,
   widthBtn,
+  onPress,
 }) => {
   return (
     <Pressable
-      onPress={() => null}
+      onPress={onPress}
       style={[styles.agendarBtn, { width: widthBtn }]}
     >
       <Text style={[styles.agendarText, { fontSize: fontSized }]}>

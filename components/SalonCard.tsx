@@ -1,8 +1,11 @@
+import { useToast } from "@/app/context/ToastContext";
+import { useAppContext } from "@/app/context/appContext";
 import template from "@/assets/images/building.png";
 import { screenDimensions } from "@/constants/screenDimensions";
 import { router } from "expo-router";
-import React from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
+import { Image, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import BookingFormCard from "./BookingFormCard";
 import { RatingStars } from "./ratingStars";
 import { ReservarBtn } from "./reservarBtn";
 import { IconSymbol } from "./ui/IconSymbol";
@@ -31,6 +34,10 @@ interface Props {
 }
 
 export default function SalonCard({ salon }: Props) {
+  const [showBooking, setShowBooking] = useState(false);
+  const { showToast } = useToast();
+  const { credits } = useAppContext();
+
   return (
     <View style={styles.card}>
       <View style={styles.topRow}>
@@ -103,8 +110,37 @@ export default function SalonCard({ salon }: Props) {
         <ReservarBtn
           fontSized={20}
           widthBtn={isDesktop ? windowWidth * 0.16 : "auto"}
+          onPress={() => {
+            if (credits < salon.precio_creditos) {
+              showToast({
+                text: "¡Créditos insuficientes!",
+                color: "red",
+                icon: "alert-circle",
+              });
+            } else {
+              setShowBooking(true);
+            }
+          }}
         />
       </View>
+      <Modal visible={showBooking} animationType="slide" transparent={true}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            backgroundColor: "rgba(0,0,0,0.4)",
+          }}
+        >
+          <BookingFormCard
+            salon={salon}
+            onSubmit={(data) => {
+              console.log("Reserva:", data);
+              setShowBooking(false);
+            }}
+            onPress={() => setShowBooking(false)}
+          />
+        </View>
+      </Modal>
     </View>
   );
 }
